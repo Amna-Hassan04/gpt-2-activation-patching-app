@@ -12,11 +12,11 @@ This project provides an interactive web application to explore the internal mec
 *   **AI-Generated Explanations**: A Groq-powered AI agent interprets the patching results and generates clear, intuitive explanations, identifying influential layers and insights into number-agreement circuits.
 *   **Modern Frontend**: A clean, responsive web interface for an enhanced user experience.
 
-## Live Demo (Placeholder)
 
-**[🚀 View Live Demo Here (Update Link After Deployment)](https://your-huggingface-space-url.hf.space/)**
+## 🎥 Video Walkthrough
 
-*Please note: The live demo link above is a placeholder. You will need to replace it with the actual URL of your deployed Hugging Face Space.* 
+[![Watch the video](https://i9.ytimg.com/vi/GhIpSgSlPpM/mqdefault.jpg?v=692db98c&sqp=CKjytskG&rs=AOn4CLD94dPDsmvaFCWmv7O0ILz1amUEGA)](https://youtu.be/GhIpSgSlPp)
+
 
 ## Technologies Used
 
