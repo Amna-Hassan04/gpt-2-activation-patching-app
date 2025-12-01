@@ -4,7 +4,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from patching_logic import run_user_activation_pipeline
-from explanation_utils import generate_explanation # New import
+from explanation_utils import generate_explanation
 import json
 
 # Instantiate FastAPI app
@@ -13,14 +13,13 @@ app = FastAPI()
 # Add CORS middleware to allow requests from any origin
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"] ,
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"] ,
-    allow_headers=["*"] ,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Mount static files directory
-# Make sure to create a 'static' folder and place index.html inside it
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Serve index.html from the root URL
@@ -44,7 +43,7 @@ async def predict_verb_agreement(request: SentenceRequest):
     if "error" in patching_results:
         return patching_results
 
-    # Reconstruct the raw output string for the explanation agent
+    # Reconstruct the raw output string for the LangGraph pipeline
     output_lines = []
     output_lines.append("\n--- Summary ---")
     output_lines.append(f"User sentence: {patching_results['user_sentence']}")
@@ -81,10 +80,11 @@ async def predict_verb_agreement(request: SentenceRequest):
         )
     raw_output_string = "\n".join(output_lines)
 
-    # Generate explanation
+    # Generate explanation using LangGraph pipeline
     explanation_output = generate_explanation(raw_output_string)
 
     return {
         "patching_results": patching_results,
-        "explanation": explanation_output["explanation"]
+        "explanation": explanation_output["explanation"],
+        "parsed_data": explanation_output["parsed"]
     }

@@ -8,3 +8,5 @@ transformers
 sentencepiece
 einops
 groq
+langgraph
+langchain-core
