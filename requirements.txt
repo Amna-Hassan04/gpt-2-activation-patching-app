@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+pydantic
+transformer_lens
+torch
+datasets
+transformers
+sentencepiece
+einops
+groq

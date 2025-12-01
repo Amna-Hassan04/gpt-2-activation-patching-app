@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPT-2 Activation Patching Demo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ----------------------- Root Theme ----------------------- */
+        :root {
+            --primary: #0066ff;
+            --primary-soft: #e8f1ff;
+            --accent: #00c2a8;
+            --bg: #f4f6f8;
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --text: #1d1f23;
+            --text-light: #6c727f;
+            --border: #dbe2ea;
+            --shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            --radius: 14px;
+        }
+
+        /* ----------------------- Global ----------------------- */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* ----------------------- Container ----------------------- */
+        .container {
+            width: 100%;
+            max-width: 920px;
+            background: var(--card-bg);
+            backdrop-filter: blur(14px);
+            padding: 40px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.6s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ----------------------- Headings ----------------------- */
+        h1 {
+            text-align: center;
+            font-weight: 700;
+            font-size: 30px;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        p.subtitle {
+            text-align: center;
+            color: var(--text-light);
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        h2.section-title {
+            margin-top: 40px;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text);
+            padding-left: 12px;
+            border-left: 4px solid var(--primary);
+        }
+
+        /* ----------------------- Input Section ----------------------- */
+        .input-box {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 14px 16px;
+            font-size: 16px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            transition: 0.2s ease;
+            background: #fff;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px var(--primary-soft);
+            outline: none;
+        }
+
+        button {
+            padding: 14px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: var(--radius);
+            border: none;
+            cursor: pointer;
+            background: var(--primary);
+            color: #fff;
+            transition: 0.25s ease;
+        }
+
+        button:hover {
+            background: #0050d9;
+            transform: translateY(-2px);
+        }
+
+        /* ----------------------- Card Sections ----------------------- */
+        .card {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            margin-top: 20px;
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.4s ease;
+        }
+
+        .loading-message {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--text-light);
+            font-style: italic;
+        }
+
+        .error {
+            background: #ffe6e6;
+            border-left: 4px solid #d9534f;
+            padding: 12px;
+            color: #b52b27;
+            border-radius: var(--radius);
+            margin-top: 12px;
+            text-align: center;
+        }
+
+        /* ----------------------- PRE Styling ----------------------- */
+        pre {
+            background: #f1f4fa;
+            padding: 18px;
+            border-radius: var(--radius);
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        /* ----------------------- Responsive ----------------------- */
+        @media (max-width: 640px) {
+            .input-box {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>GPT-2 Activation Patching</h1>
+        <p class="subtitle">Explore how modifying model activations changes linguistic behavior.</p>
+
+        <div class="input-box">
+            <input type="text" id="sentenceInput" placeholder="Enter a sentence (e.g., The cat has fur.)">
+            <button id="patchButton">Run Patching</button>
+        </div>
+
+        <p id="loadingMessage" class="loading-message">Enter a sentence and click “Run Patching”.</p>
+
+        <!-- Explanation -->
+        <div id="explanationSection" class="card" style="display:none;">
+            <h2 class="section-title">Explanation</h2>
+            <pre id="explanationContent"></pre>
+        </div>
+
+        <!-- Results -->
+        <div id="patchingResultsSection" class="card" style="display:none;">
+            <h2 class="section-title">Activation Patching Output</h2>
+            <pre id="patchingResultsContent"></pre>
+        </div>
+    </div>
+
+    <script>
+        const input = document.getElementById('sentenceInput');
+        const button = document.getElementById('patchButton');
+        const loadingMessage = document.getElementById('loadingMessage');
+        const explanationSection = document.getElementById('explanationSection');
+        const explanationContent = document.getElementById('explanationContent');
+        const patchingResultsSection = document.getElementById('patchingResultsSection');
+        const patchingResultsContent = document.getElementById('patchingResultsContent');
+
+        button.addEventListener('click', async () => {
+            const sentence = input.value.trim();
+
+            if (!sentence) {
+                loadingMessage.textContent = "Please enter a valid sentence.";
+                loadingMessage.classList.add("error");
+                return;
+            }
+
+            loadingMessage.classList.remove("error");
+            loadingMessage.textContent = "Running activation patching…";
+            explanationSection.style.display = "none";
+            patchingResultsSection.style.display = "none";
+
+            try {
+                const res = await fetch("/predict", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ sentence })
+                });
+
+                const data = await res.json();
+                loadingMessage.textContent = "";
+
+                if (!res.ok || data.error) {
+                    loadingMessage.textContent = data.error || "Server error.";
+                    loadingMessage.classList.add("error");
+                    return;
+                }
+
+                if (data.explanation) {
+                    explanationContent.textContent = data.explanation;
+                    explanationSection.style.display = "block";
+                }
+
+                if (data.patching_results) {
+                    patchingResultsContent.textContent = JSON.stringify(data.patching_results, null, 2);
+                    patchingResultsSection.style.display = "block";
+                }
+
+            } catch (err) {
+                loadingMessage.textContent = "Connection error: " + err.message;
+                loadingMessage.classList.add("error");
+            }
+        });
+    </script>
+</body>
+</html>
